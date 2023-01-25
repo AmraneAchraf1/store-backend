@@ -19,10 +19,25 @@ class ProductController extends Controller
     public function index(Request $request)
     {
 
-        $products = Product::all();
+        $products = Product::all()->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'type' => $product->type,
+                "options" => $product->options,
+                'name' => $product->name,
+                'description' => $product->description,
+                'price' => $product->price,
+                'image' => $product->image,
+                "image_url" => asset("storage/uploads/". $product->image )
+            ];
+        });;
+
+
+
+
 
         if($products){
-            return response()->json($products, 200);
+            return response()->json( $products, 200);
         }
 
         return response()->json([
@@ -38,12 +53,16 @@ class ProductController extends Controller
      */
     public function store(ProductRequest $request)
     {
+        if (!$request->hasFile("image")){
+            return  response()->json(["msg" => "Image not found"]);
+        }
+
         $image = $request->file("image");
-
         $image_name = Carbon::now()->format("d-m-Y-H-i-s") ."_" .$image->getClientOriginalName();
-
+        $path =  null;
         if($image){
-            $image->storeAs("public/uploads", $image_name);
+
+            $path = $image->storeAs("uploads", $image_name, "public");
         }else{
             return response()->json(["msg" => "Error"]);
         }
@@ -60,7 +79,7 @@ class ProductController extends Controller
         ]);
 
         if ($product){
-            return response()->json($product, 201);
+            return response()->json(  [ "product"=>$product ,"image_url"=>asset("storage/". $path) ], 201);
         }else{
             return response()->json([
                 "msg" => "Product Not Created"
@@ -76,7 +95,15 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        //
+        $product = Product::find($id);
+
+        if($product){
+            return  response()->json( [ "product"=>$product ,"image_url"=>asset("storage/uploads/". $product->image ) ]);
+        }
+            return  response()->json([
+                "msg" => "Product Not Found"
+            ], 404);
+
     }
 
     /**
@@ -84,21 +111,74 @@ class ProductController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(ProductRequest $request, $id)
     {
-        //
+
+
+        $product = Product::find($id);
+
+        if (!$request->hasFile("image")){
+            return  response()->json(["msg" => "Image not found"]);
+        }
+
+
+        $image = $request->file("image");
+        $image_name = Carbon::now()->format("d-m-Y-H-i-s") ."_" .$image->getClientOriginalName();
+        $path =  null;
+        if($image){
+
+            $path = $image->storeAs("uploads", $image_name, "public");
+        }else{
+            return response()->json(["msg" => "Error"]);
+        }
+
+
+
+        if($product){
+           $product->update([
+               "name"=> $request->name,
+               "image"=> $image_name,
+               "type"=> $request->type,
+               "price"=> $request->price,
+               "description"=> $request->description,
+               "options"=>$request->options,
+           ]);
+
+           return response()->json( [ "product"=>$product,"image_url"=>asset("storage/".$path)]);
+        }
+        return  response()->json([
+            "msg" => "Product Not Found"
+        ], 404);
+
+
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
     {
-        //
+        $product = Product::find($id);
+
+
+        if($product){
+            $product->delete();
+
+            Storage::disk("public")->delete("uploads/". $product->image );
+            return response()->json([
+                "msg" => "Product Deleted",
+            ]);
+        }
+
+
+        return  response()->json(["msg" => "Can't delete product"]);
+
+
+
     }
 }

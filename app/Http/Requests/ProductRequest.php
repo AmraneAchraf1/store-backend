@@ -13,6 +13,7 @@ class ProductRequest extends FormRequest
      */
     public function authorize()
     {
+
         return true;
     }
 
@@ -24,6 +25,9 @@ class ProductRequest extends FormRequest
     public function rules()
     {
         //'image' => 'file|size:512'
+
+
+
         return [
             "name" => "required|string|max: 255|min: 3",
             "type" => "required|string|max: 255",
