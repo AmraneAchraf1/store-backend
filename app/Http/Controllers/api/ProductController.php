@@ -30,11 +30,7 @@ class ProductController extends Controller
                 'image' => $product->image,
                 "image_url" => asset("storage/uploads/". $product->image )
             ];
-        });;
-
-
-
-
+        });
 
         if($products){
             return response()->json( $products, 200);
@@ -57,11 +53,12 @@ class ProductController extends Controller
             return  response()->json(["msg" => "Image not found"]);
         }
 
-        $image = $request->file("image");
+        $image = $request->file("image"); // UploadedFile
+
         $image_name = Carbon::now()->format("d-m-Y-H-i-s") ."_" .$image->getClientOriginalName();
         $path =  null;
-        if($image){
 
+        if($image){
             $path = $image->storeAs("uploads", $image_name, "public");
         }else{
             return response()->json(["msg" => "Error"]);
@@ -102,7 +99,7 @@ class ProductController extends Controller
         }
             return  response()->json([
                 "msg" => "Product Not Found"
-            ], 404);
+            ], 400);
 
     }
 
@@ -115,7 +112,6 @@ class ProductController extends Controller
      */
     public function update(ProductRequest $request, $id)
     {
-
 
         $product = Product::find($id);
 
@@ -135,7 +131,6 @@ class ProductController extends Controller
         }
 
 
-
         if($product){
            $product->update([
                "name"=> $request->name,
@@ -145,7 +140,6 @@ class ProductController extends Controller
                "description"=> $request->description,
                "options"=>$request->options,
            ]);
-
            return response()->json( [ "product"=>$product,"image_url"=>asset("storage/".$path)]);
         }
         return  response()->json([
