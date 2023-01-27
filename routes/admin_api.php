@@ -18,10 +18,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::group(["middleware"=>["guest:admin"]], function (){
 
-    Route::get('/auth/login',[AuthAdminController::class, "login"]);
-});
+Route::post('auth/login',[AuthAdminController::class, "login"])->middleware("guest:sanctum");
 
+Route::post('auth/register',[AuthAdminController::class, "register"])->middleware("guest:sanctum");
+
+Route::post('auth/logout',[AuthAdminController::class, "logout"])->middleware("auth:sanctum");
 
 

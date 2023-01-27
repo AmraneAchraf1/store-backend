@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\PersonalAccessToken;
 
 
 class AuthUserController extends Controller
@@ -24,7 +25,7 @@ class AuthUserController extends Controller
 
         if(Auth::attempt($user)){
             $user = Auth::user();
-            $access_token = $user->createToken($request->userAgent());
+            $access_token = $user->createToken($request->userAgent() , ["user"]);
 
             return response()->json([
                 'access_token' => $access_token->plainTextToken,
@@ -64,10 +65,20 @@ class AuthUserController extends Controller
     {
         $user = Auth::guard("sanctum")->user();
 
-        if($user) {
+
+        $personalleAccessToken = PersonalAccessToken::findToken( $request->bearerToken());
+
+
+
+        if($personalleAccessToken->tokenable_type === "App\\Models\\User"
+            &&
+            $personalleAccessToken->tokenable_id === $user->id) {
             $user->tokens()->delete();
             return response()->json(["msg"=>"Logout successful"]);
+        }else{
+            return  response()->json(["msg"=>"Access denied"]);
         }
+
 
         return response()->json(["msg"=>"Logout failed"]);
     }

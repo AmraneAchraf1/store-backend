@@ -7,6 +7,7 @@ use App\Http\Requests\ProductRequest;
 use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
@@ -18,6 +19,7 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
+
 
         $products = Product::all()->map(function ($product) {
             return [
@@ -49,6 +51,12 @@ class ProductController extends Controller
      */
     public function store(ProductRequest $request)
     {
+
+        $user = Auth::guard('sanctum')->user();
+        if(!$user->tokenCan('admin')){
+            return response()->json(['msg'=>'Access denied']);
+        }
+
         if (!$request->hasFile("image")){
             return  response()->json(["msg" => "Image not found"]);
         }
@@ -112,6 +120,11 @@ class ProductController extends Controller
      */
     public function update(ProductRequest $request, $id)
     {
+        $user = Auth::guard('sanctum')->user();
+
+        if(!$user->tokenCan('admin')){
+            return response()->json(['msg'=>'Access denied']);
+        }
 
         $product = Product::find($id);
 
@@ -157,6 +170,12 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
+
+        $user = Auth::guard('sanctum')->user();
+
+        if(!$user->tokenCan('admin')){
+            return response()->json(['msg'=>'Access denied']);
+        }
         $product = Product::find($id);
 
 

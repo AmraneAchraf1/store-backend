@@ -28,7 +28,7 @@ class RegisterRequest extends FormRequest
         return [
             "first_name"=> "required|string|min:2",
             "last_name"=> "required|string|min:2",
-            "email"=> "required|unique:users|string|max:255",
+            "email"=> "required|unique:admins|unique:users|string|max:255",
             "phone"=> "sometimes|unique:users|string|max:20",
             "password"=> "required|string|max:20|min:8",
         ];

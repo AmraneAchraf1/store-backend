@@ -42,9 +42,11 @@ return [
         ],
 
         'admin' => [
-            'driver' => 'sanctum',
-            'provider' => 'admins',
+            'driver' => 'session',
+            'provider' => 'admins'
         ],
+
+
     ],
 
     /*
