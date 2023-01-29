@@ -84,7 +84,8 @@ class ProductController extends Controller
         ]);
 
         if ($product){
-            return response()->json(  [ "product"=>$product ,"image_url"=>asset("storage/". $path) ], 201);
+            $product['image_url']= asset("storage/". $path);
+            return response()->json(  $product , 201);
         }else{
             return response()->json([
                 "msg" => "Product Not Created"
@@ -120,6 +121,7 @@ class ProductController extends Controller
      */
     public function update(ProductRequest $request, $id)
     {
+        return $request;
         $user = Auth::guard('sanctum')->user();
 
         if(!$user->tokenCan('admin')){
@@ -184,6 +186,7 @@ class ProductController extends Controller
 
             Storage::disk("public")->delete("uploads/". $product->image );
             return response()->json([
+                "id" => $product->id,
                 "msg" => "Product Deleted",
             ]);
         }
