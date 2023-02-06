@@ -33,7 +33,7 @@ class ProductRequest extends FormRequest
             "type" => "required|string|max: 255",
             "options" => "sometimes",
             "description" => "required|string|max: 255|min: 2",
-            "price" => "required",
+            "price" => "required|numeric|min: 0",
             "image" => "sometimes",
         ];
     }

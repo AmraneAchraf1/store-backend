@@ -20,7 +20,6 @@ class ProductController extends Controller
     public function index(Request $request)
     {
 
-
         $products = Product::all()->map(function ($product) {
             return [
                 'id' => $product->id,
@@ -51,11 +50,13 @@ class ProductController extends Controller
      */
     public function store(ProductRequest $request)
     {
-
+        // Just admin Can Add products
         $user = Auth::guard('sanctum')->user();
         if(!$user->tokenCan('admin')){
             return response()->json(['msg'=>'Access denied']);
         }
+
+
 
         if (!$request->hasFile("image")){
             return  response()->json(["msg" => "Image not found"]);
@@ -119,9 +120,9 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(ProductRequest $request, $id)
+    public function updateProduct(ProductRequest $request, $id)
     {
-        return $request;
+
         $user = Auth::guard('sanctum')->user();
 
         if(!$user->tokenCan('admin')){
@@ -134,6 +135,7 @@ class ProductController extends Controller
             return  response()->json(["msg" => "Image not found"]);
         }
 
+        $oldImage = "uploads/".$product->image;
 
         $image = $request->file("image");
         $image_name = Carbon::now()->format("d-m-Y-H-i-s") ."_" .$image->getClientOriginalName();
@@ -141,6 +143,11 @@ class ProductController extends Controller
         if($image){
 
             $path = $image->storeAs("uploads", $image_name, "public");
+
+            if($path && $oldImage){
+                Storage::disk("public")->delete($oldImage);
+            }
+
         }else{
             return response()->json(["msg" => "Error"]);
         }
@@ -153,9 +160,11 @@ class ProductController extends Controller
                "type"=> $request->type,
                "price"=> $request->price,
                "description"=> $request->description,
-               "options"=>$request->options,
+
            ]);
-           return response()->json( [ "product"=>$product,"image_url"=>asset("storage/".$path)]);
+           $product["image_url"] = asset("storage/".$path);
+
+           return response()->json($product);
         }
         return  response()->json([
             "msg" => "Product Not Found"

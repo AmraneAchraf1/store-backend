@@ -65,6 +65,7 @@ class AuthAdminController extends Controller
         if($personalleAccessToken->tokenable_type === "App\\Models\\Admin"
             &&
             $personalleAccessToken->tokenable_id === $user->id) {
+
             $user->tokens()->delete();
             return response()->json(["msg"=>"Logout successful"]);
         }else{

@@ -20,7 +20,8 @@ use Illuminate\Support\Facades\Route;
 
 // To get the authenticated Admin
 Route::middleware('auth:sanctum')->get('/', function (Request $request) {
-    return $request->user();
+
+    return $request->user() ? $request->user() :response()->json(['msg' => 'unauthorized']) ;
 });
 
 
@@ -29,5 +30,7 @@ Route::post('auth/login',[AuthAdminController::class, "login"])->middleware("gue
 Route::post('auth/register',[AuthAdminController::class, "register"])->middleware("guest:sanctum");
 
 Route::post('auth/logout',[AuthAdminController::class, "logout"])->middleware("auth:sanctum");
+
+
 
 
