@@ -32,7 +32,7 @@ class ProductRequest extends FormRequest
             "name" => "required|string|max: 255|min: 3",
             "type" => "required|string|max: 255",
             "options" => "sometimes",
-            "description" => "required|string|max: 255|min: 2",
+            "description" => "required|string|min: 2",
             "price" => "required|numeric|min: 0",
             "image" => "sometimes",
         ];
